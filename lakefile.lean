@@ -6,3 +6,7 @@ package «Specs» where
 
 lean_lib «Specs» where
   -- add library configuration options here
+
+lean_exe «tests» where
+  root := `Tests
+  supportInterpreter := true
