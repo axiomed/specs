@@ -1,12 +1,16 @@
-/- Core definitions for the Specs test framework -/
+/-
+Core definitions for the Specs test framework
+-/
 
 import Cats.Trans
+
 open Cats.Trans
 
 namespace Specs.Core
 
 inductive Reason
   | equality (actual: Std.Format) (expected: Std.Format)
+  | comparison (actual: Std.Format) (expected: Std.Format)
   | property (actual: Std.Format)
   | failure (message: String)
 
@@ -64,6 +68,5 @@ def specGroup (name: String) (leaves: Array (Tree α)) : Tree α :=
   match name with
   | "" => Tree.node "(no description)" leaves
   | _  => Tree.node name leaves
-
 
 end Specs.Core

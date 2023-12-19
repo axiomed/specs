@@ -1,4 +1,7 @@
-import Cats.Trans
+/-
+Module for running `Specs` tests.
+-/
+
 import Specs.Core
 
 open Specs.Core
@@ -13,6 +16,7 @@ instance : ToString Failure where
   toString failure :=
     match failure.reason with
     | Reason.equality actual expected => s!"{failure.message}: expected {expected}, got {actual}"
+    | Reason.comparison actual expected => s!"{failure.message}: comparison between {actual} and {expected} failed"
     | Reason.property actual => s!"{failure.message}: got {actual}"
     | Reason.failure message => message
 
