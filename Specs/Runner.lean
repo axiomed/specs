@@ -21,7 +21,7 @@ instance : ToString Failure where
     | Reason.failure message => message
 
 private def executeTest (ident: String) (message: String) (shouldFail: Bool) (test: Test) : IO UInt32 := do
-  let result ← EIO.catchExceptions (Except.ok <$> test) (pure ∘ Except.error)
+  let result := ExceptT.run test
 
   let ⟨failed, errMessage⟩ :=
     match result with

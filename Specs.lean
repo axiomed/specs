@@ -4,3 +4,4 @@ import Specs.Core
 import Specs.Runner
 import Specs.Matchers
 import Specs.Cli
+import Specs.Testable

@@ -18,7 +18,7 @@ structure Failure where
   message : String
   reason : Reason
 
-abbrev Test := EIO Failure Unit
+abbrev Test := ExceptT Failure Id Unit
 
 structure Item (α: Type) where
   requirement : String
@@ -39,9 +39,9 @@ def Env.push (env: Env) (label: String) : Env :=
 
 def SpecsM (α: Type) (r: Type) : Type := WriterT (Array (Tree α)) (ReaderT Env Id) r
 
-def Specs : Type := SpecsM (EIO Failure Unit) Unit
+def Specs : Type := SpecsM Test Unit
 
-def Specs.run (x: Specs) : Array (Tree (EIO Failure Unit)) :=
+def Specs.run (x: Specs) : Array (Tree Test) :=
   let ⟨res, ()⟩ := x #[] { labels := [] }
   res
 

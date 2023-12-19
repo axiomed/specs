@@ -4,6 +4,7 @@ a bunch of then
 -/
 
 import Specs.Core
+import Specs.Testable
 
 open Specs.Core
 open Cats.Trans
@@ -14,6 +15,11 @@ namespace Specs.Matchers
 def describe (label: String) (x: SpecsM α β) (parallel: Bool := false) : SpecsM α β :=
   let withEnv := SpecsM.withEnv (λ env => env.push label) x
   SpecsM.mapTree (Array.singleton ∘ specGroup label parallel) withEnv
+
+def prop (label: String) (ρ: Prop) [d: Testable ρ] : Test :=
+  match d with
+  | Testable.isTrue _      => return ()
+  | Testable.isFalse _ msg => throw { message := label, reason := Reason.failure msg }
 
 /-- `it` defines a single test with a label -/
 def it (label: String) (action: α) : SpecsM α Unit :=
