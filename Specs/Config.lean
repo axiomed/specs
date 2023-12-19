@@ -1,4 +1,4 @@
-/- Module for `Runner` configuration -/
+/-! Module for `Runner` configuration -/
 
 namespace Specs
 

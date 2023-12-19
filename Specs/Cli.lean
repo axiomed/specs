@@ -1,11 +1,11 @@
-/-
-Module for interacting with the command line.
--/
-
 import Specs.Core
 import Specs.Runner
 import Specs.Matchers
 import Cli
+
+/-!
+Module for interacting with the command line.
+-/
 
 open Specs.Core Specs.Runner Cats.Trans Cli
 

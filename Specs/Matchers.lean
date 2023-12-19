@@ -1,10 +1,10 @@
-/-
+import Specs.Core
+import Specs.Testable
+
+/-!
 Specs.lean uses `matchers` to test and describe values in different ways. This module defines
 a bunch of then
 -/
-
-import Specs.Core
-import Specs.Testable
 
 open Specs.Core
 open Cats.Trans

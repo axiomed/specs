@@ -1,13 +1,14 @@
-/-
-Module for running `Specs` tests. This module is responsible for executing the tests and printing
-the results.
--/
 
 import Specs.Core
 import Specs.Config
 import Specs.Display
 
 import Lean
+
+/-!
+Module for running `Specs` tests. This module is responsible for executing the tests and printing
+the results.
+-/
 
 open Specs Specs.Core Specs.Display
 

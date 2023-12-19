@@ -1,8 +1,8 @@
-/-
+import Cats.Trans
+
+/-!
 Core definitions for the Specs test framework
 -/
-
-import Cats.Trans
 
 open Cats.Trans
 
