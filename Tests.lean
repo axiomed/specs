@@ -1,7 +1,16 @@
 import Specs
+import Specs.Macro
 
 open Specs
 open Specs.Matchers
+open Specs.Macro
+
+/- Testing just using the `run` function -/
+#test do
+  it "1 equals 1" do
+    prop "is equal" (1 = 1)
+  failing "1 diff 2" do
+    prop "is equal" (1 = 2)
 
 def main := runCli do
   describe "check if numbers are different" do
