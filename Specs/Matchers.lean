@@ -69,4 +69,8 @@ def isLessOrEqual [Repr α] [BEq α] [Ord α] (actual: α) (expected: α) : Test
 def isTrue (actual: Bool) : Test := do
   if actual then pure () else throw { message := "should be true", reason := Reason.failure "should be true" }
 
+/-- checks if a value is false -/
+def isEqual [Repr α] [BEq α] (actual: α) (expected: α) : Test :=
+  assert "should be equal" actual expected
+
 end Specs.Matchers
