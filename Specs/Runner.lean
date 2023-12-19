@@ -1,63 +1,67 @@
 /-
-Module for running `Specs` tests.
+Module for running `Specs` tests. This module is responsible for executing the tests and printing
+the results.
 -/
 
 import Specs.Core
+import Specs.Config
+import Specs.Display
 
-open Specs.Core
+import Lean
+
+open Specs Specs.Core Specs.Display
 
 namespace Specs.Runner
 
-structure Config where
-  verbose : Bool := false
-  bail    : Bool := false
-
-instance : ToString Failure where
-  toString failure :=
-    match failure.reason with
-    | Reason.equality actual expected => s!"{failure.message}: expected {expected}, got {actual}"
-    | Reason.comparison actual expected => s!"{failure.message}: comparison between {actual} and {expected} failed"
-    | Reason.property actual => s!"{failure.message}: got {actual}"
-    | Reason.failure message => message
-
-private def executeTest (ident: String) (message: String) (shouldFail: Bool) (test: Test) : IO UInt32 := do
-  let result := ExceptT.run test
+private def executeTest (item: Item Test) : TestTree :=
+  let result := ExceptT.run item.action
 
   let ⟨failed, errMessage⟩ :=
     match result with
     | Except.ok () => (false, none)
     | Except.error failure => (true, some (ToString.toString failure))
 
-  let mark := if shouldFail == failed then "🗸" else "🗙"
-  IO.println s!"{ident}{mark} {message}"
+  let succeded := item.shouldFail == failed
 
-  match errMessage with
-  | some message => do if !shouldFail then IO.println s!"{ident}    {message}"
-  | _ => pure ()
+  TestTree.test succeded item.requirement errMessage
 
-  return if shouldFail == failed then 0 else 1
-
-private partial def executeTree (config: Config) (ident: String) (tree: Tree Test) : IO UInt32 := do
+partial def executeTree (config: Config) (tree: Tree Test) : TestTree :=
   match tree with
-  | Tree.node name tests _ => do
-    IO.println s!"{ident}{name}"
-    let mut result := 0
+  | Tree.leaf item => executeTest item
+  | Tree.node name tests _ => Id.run do
+    let mut arr := Array.empty
     for tree in tests do
-      result := result + (← executeTree config (ident ++ "  ") tree)
-      if config.bail && result > 0 then return result
-    return result
-  | Tree.leaf data => executeTest ident data.requirement data.shouldFail data.action
+      let res := executeTree config tree
+      arr := Array.push arr res
+      if res.failed && config.bail then break
+    return TestTree.group name arr
 
-def execute (_config: Config) (specs: Specs) : IO UInt32 := do
+def executePure (config: Config) (specs: Specs) : Array TestTree := Id.run do
+  let tests := specs.run
+
+  let mut arr := Array.empty
+
+  for tree in tests do
+    let res := executeTree config tree
+    arr := Array.push arr res
+    if res.failed && config.bail then break
+
+  return arr
+
+/-- Execute the given `Specs` and print the results. -/
+def executeIO (config: Config) (specs: Specs) : IO UInt32 := do
   IO.println "\nRunning tests...\n"
   let tests := specs.run
 
   let mut result := 0
-  for tree in tests do
-    result := result + (← executeTree _config "" tree)
-    if result > 0 && _config.bail then break
+  let mut arr := Array.empty
 
-  IO.println ""
+  for tree in tests do
+    let res := executeTree config tree
+    arr := Array.push arr res
+    if res.failed && config.bail then break
+
+  IO.println s!"{Specs.Display.displayMultiple arr}"
 
   if result == 0 then
     IO.println "All tests passed!\n"

@@ -13,7 +13,7 @@ namespace Specs
 
 private def runCmd (specs: Specs) (parsed : Parsed) : IO UInt32 := do
   let config := Config.mk (parsed.hasFlag "verbose") (parsed.hasFlag "bail")
-  execute config specs
+  executeIO config specs
 
 private def specsCmd (specs: Specs) : Cmd := `[Cli|
   testsCmd VIA runCmd specs; ["0.0.1"]
