@@ -23,10 +23,11 @@ abbrev Test := EIO Failure Unit
 structure Item (α: Type) where
   requirement : String
   action      : α
+  shouldFail  : Bool := false
   deriving Repr
 
 inductive Tree (α: Type)
-  | node (name: String) (leaves: Array (Tree α))
+  | node (name: String) (leaves: Array (Tree α)) (parallel: Bool)
   | leaf (data: Item α)
 
 structure Env where
@@ -64,9 +65,9 @@ def SpecsM.mapTree (f: Array (Tree α) -> Array (Tree α)) (x: SpecsM α β) : S
     let ⟨p', x⟩ ← x #[] n
     pure ⟨Array.append p (f p'), x⟩
 
-def specGroup (name: String) (leaves: Array (Tree α)) : Tree α :=
+def specGroup (name: String) (parallel: Bool) (leaves: Array (Tree α)) : Tree α :=
   match name with
-  | "" => Tree.node "(no description)" leaves
-  | _  => Tree.node name leaves
+  | "" => Tree.node "(no description)" leaves parallel
+  | _  => Tree.node name leaves parallel
 
 end Specs.Core

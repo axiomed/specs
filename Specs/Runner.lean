@@ -20,40 +20,50 @@ instance : ToString Failure where
     | Reason.property actual => s!"{failure.message}: got {actual}"
     | Reason.failure message => message
 
-private def executeTest (ident: String) (message: String) (test: Test) : IO UInt32 := do
+private def executeTest (ident: String) (message: String) (shouldFail: Bool) (test: Test) : IO UInt32 := do
   let result ← EIO.catchExceptions (Except.ok <$> test) (pure ∘ Except.error)
 
-  match result with
-  | Except.ok () => do
-    IO.println s!"{ident}🗸 {message}"
-    return 0
-  | Except.error failure => do
-    IO.println s!"{ident}🗙 {message}"
-    IO.println s!"{ident}    {failure}"
-    return 1
+  let ⟨failed, errMessage⟩ :=
+    match result with
+    | Except.ok () => (false, none)
+    | Except.error failure => (true, some (ToString.toString failure))
+
+  let mark := if shouldFail == failed then "🗸" else "🗙"
+  IO.println s!"{ident}{mark} {message}"
+
+  match errMessage with
+  | some message => do if !shouldFail then IO.println s!"{ident}    {message}"
+  | _ => pure ()
+
+  return if shouldFail == failed then 0 else 1
 
 private partial def executeTree (config: Config) (ident: String) (tree: Tree Test) : IO UInt32 := do
   match tree with
-  | Tree.node name tests => do
+  | Tree.node name tests _ => do
     IO.println s!"{ident}{name}"
     let mut result := 0
     for tree in tests do
-      result ← executeTree config (ident ++ "  ") tree
-      if config.bail && result != 0 then
-        return result
+      result := result + (← executeTree config (ident ++ "  ") tree)
+      if config.bail && result > 0 then return result
     return result
-  | Tree.leaf data => executeTest ident data.requirement data.action
+  | Tree.leaf data => executeTest ident data.requirement data.shouldFail data.action
 
 def execute (_config: Config) (specs: Specs) : IO UInt32 := do
   IO.println "\nRunning tests...\n"
   let tests := specs.run
+
   let mut result := 0
   for tree in tests do
-    result ← executeTree _config "" tree
-    if result != 0 && _config.bail then
-      IO.println ""
-      return result
+    result := result + (← executeTree _config "" tree)
+    if result > 0 && _config.bail then break
+
   IO.println ""
-  return result
+
+  if result == 0 then
+    IO.println "All tests passed!\n"
+  else
+    IO.println s!"{result} test(s) failed.\n"
+
+  return if result == 0 then 0 else 1
 
 end Specs.Runner

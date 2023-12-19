@@ -11,13 +11,17 @@ open Cats.Trans
 namespace Specs.Matchers
 
 /-- `describe` creates a block that groups a bunch of tests that are related. -/
-def describe (label: String) (x: SpecsM α β) : SpecsM α β :=
+def describe (label: String) (x: SpecsM α β) (parallel: Bool := false) : SpecsM α β :=
   let withEnv := SpecsM.withEnv (λ env => env.push label) x
-  SpecsM.mapTree (Array.singleton ∘ specGroup label) withEnv
+  SpecsM.mapTree (Array.singleton ∘ specGroup label parallel) withEnv
 
 /-- `it` defines a single test with a label -/
 def it (label: String) (action: α) : SpecsM α Unit :=
-  let item : Item α := { requirement := label, action }
+  let item : Item α := { requirement := label, action, shouldFail := false }
+  WriterT.tell #[Tree.leaf item]
+
+def failing (label: String) (action: α) : SpecsM α Unit :=
+  let item : Item α := { requirement := label, action, shouldFail := true }
   WriterT.tell #[Tree.leaf item]
 
 /-- `assert` checks that two values are equal. -/

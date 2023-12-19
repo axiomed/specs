@@ -10,3 +10,5 @@ def main := runCli do
       isGreater 3 1
     it "numbers greater than 10" do
       isGreater 20 15
+    failing "numbers less than 0" do
+      isGreater 3 0
