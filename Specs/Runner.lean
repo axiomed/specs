@@ -1,4 +1,3 @@
-
 import Specs.Core
 import Specs.Config
 import Specs.Display
@@ -14,7 +13,7 @@ open Specs Specs.Core Specs.Display
 
 namespace Specs.Runner
 
-private def executeTest (item: Item Test) : TestTree :=
+private def executeTest (item: Item Test) (config : Config) : TestTree :=
   let result := ExceptT.run item.action
 
   let ⟨failed, errMessage⟩ :=
@@ -24,18 +23,18 @@ private def executeTest (item: Item Test) : TestTree :=
 
   let succeded := item.shouldFail == failed
 
-  TestTree.test succeded item.requirement errMessage
+  TestTree.test config succeded item.requirement errMessage
 
 partial def executeTree (config: Config) (tree: Tree Test) : TestTree :=
   match tree with
-  | Tree.leaf item => executeTest item
+  | Tree.leaf item => executeTest item config
   | Tree.node name tests _ => Id.run do
     let mut arr := Array.empty
     for tree in tests do
       let res := executeTree config tree
       arr := Array.push arr res
       if res.failed && config.bail then break
-    return TestTree.group name arr
+    return TestTree.group config name arr
 
 def executePure (config: Config) (specs: Specs) : Array TestTree := Id.run do
   let tests := specs.run

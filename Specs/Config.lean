@@ -3,8 +3,9 @@
 namespace Specs
 
 structure Config where
-  verbose : Bool := false
-  bail    : Bool := false
+  verbose  : Bool := false
+  bail     : Bool := false
+  noColors : Bool := true
   deriving Inhabited
 
 end Specs
