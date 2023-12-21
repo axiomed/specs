@@ -12,6 +12,7 @@ open Specs.Core Specs.Runner Cats.Trans Cli
 namespace Specs
 
 private def runCmd (specs: Specs) (parsed : Parsed) : IO UInt32 := do
+  -- TODO: turn this into a config file
   let config := Config.mk
     (parsed.hasFlag "verbose")
     (parsed.hasFlag "bail")

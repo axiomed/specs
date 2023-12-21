@@ -13,7 +13,7 @@ open Specs Specs.Core Specs.Display
 
 namespace Specs.Runner
 
-private def executeTest (item: Item Test) (config : Config) : TestTree :=
+private def executeTest (config : Config) (item: Item Test) : ConfigurableTestTree :=
   let result := ExceptT.run item.action
 
   let ⟨failed, errMessage⟩ :=
@@ -23,20 +23,23 @@ private def executeTest (item: Item Test) (config : Config) : TestTree :=
 
   let succeded := item.shouldFail == failed
 
-  TestTree.test config succeded item.requirement errMessage
+  let testTree := TestTree.test succeded item.requirement errMessage
 
-partial def executeTree (config: Config) (tree: Tree Test) : TestTree :=
+  ConfigurableTestTree.mk testTree config
+
+partial def executeTree (config: Config) (tree: Tree Test) : ConfigurableTestTree :=
   match tree with
-  | Tree.leaf item => executeTest item config
+  | Tree.leaf item => executeTest config item
   | Tree.node name tests _ => Id.run do
     let mut arr := Array.empty
     for tree in tests do
       let res := executeTree config tree
       arr := Array.push arr res
-      if res.failed && config.bail then break
-    return TestTree.group config name arr
+      if res.testTree.failed && config.bail then break
+    let new_arr := arr.map (λ x => x.testTree)
+    return ConfigurableTestTree.mk (TestTree.group name new_arr) config
 
-def executePure (config: Config) (specs: Specs) : Array TestTree := Id.run do
+def executePure (config: Config) (specs: Specs) : Array ConfigurableTestTree := Id.run do
   let tests := specs.run
 
   let mut arr := Array.empty
@@ -44,7 +47,7 @@ def executePure (config: Config) (specs: Specs) : Array TestTree := Id.run do
   for tree in tests do
     let res := executeTree config tree
     arr := Array.push arr res
-    if res.failed && config.bail then break
+    if res.testTree.failed && config.bail then break
 
   return arr
 
@@ -59,7 +62,7 @@ def executeIO (config: Config) (specs: Specs) : IO UInt32 := do
   for tree in tests do
     let res := executeTree config tree
     arr := Array.push arr res
-    if res.failed && config.bail then break
+    if res.testTree.failed && config.bail then break
 
   IO.println s!"{Specs.Display.displayMultiple arr}"
 

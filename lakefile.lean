@@ -14,3 +14,4 @@ lean_exe «specstest» where
 require Colorized from git "https://github.com/axiomed/Colorized.lean.git"
 require Cats from git "https://github.com/axiomed/Cats.lean.git"
 require Cli from git "https://github.com/leanprover/lean4-cli.git"
+require Colorized from git "https://github.com/axiomed/Colorized.lean.git"
