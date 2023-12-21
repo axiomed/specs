@@ -6,8 +6,8 @@ import Specs.Pretty
 namespace Specs.Display
 
 inductive TestTree where
-  | group (config : Config) (name: String) (tests: Array TestTree)
-  | test (config : Config) (succeded: Bool) (message: String) (explanation: Option String)
+  | group (name: String) (tests: Array TestTree)
+  | test (succeded: Bool) (message: String) (explanation: Option String)
   deriving Inhabited
 
 structure ConfigurableTestTree where
@@ -30,12 +30,12 @@ partial def ConfigurableTestTree.reprTree (ident: String) (configurableTestTree 
     s!"{ident}{name}\n{String.join $ Array.toList tests}"
 
 partial def TestTree.countFailures : TestTree → Nat
-  | TestTree.test _ succeded _ _ => if succeded then 0 else 1
-  | TestTree.group _ _ tests     => tests.foldl (λ acc test => acc + test.countFailures) 0
+  | TestTree.test succeded _ _ => if succeded then 0 else 1
+  | TestTree.group _ tests     => tests.foldl (λ acc test => acc + test.countFailures) 0
 
 partial def TestTree.failed : TestTree → Bool
-  | TestTree.test _ succeded _ _ => !succeded
-  | TestTree.group _ _ tests     => tests.any TestTree.failed
+  | TestTree.test succeded _ _ => !succeded
+  | TestTree.group _ tests     => tests.any TestTree.failed
 
 instance : ToString ConfigurableTestTree where
   toString tree := tree.reprTree ""
