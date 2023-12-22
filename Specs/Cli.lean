@@ -12,7 +12,11 @@ open Specs.Core Specs.Runner Cats.Trans Cli
 namespace Specs
 
 private def runCmd (specs: Specs) (parsed : Parsed) : IO UInt32 := do
-  let config := Config.mk (parsed.hasFlag "verbose") (parsed.hasFlag "bail")
+  -- TODO: turn this into a config file
+  let config := Config.mk
+    (parsed.hasFlag "verbose")
+    (parsed.hasFlag "bail")
+    (parsed.hasFlag "noColors")
   executeIO config specs
 
 private def specsCmd (specs: Specs) : Cmd := `[Cli|
@@ -22,6 +26,7 @@ private def specsCmd (specs: Specs) : Cmd := `[Cli|
   FLAGS:
     verbose; "Prints more information about each test"
     bail; "Stops the test suite after the first failure"
+    noColors; "Disables colored output"
 ]
 
 /-- Runs a test suite using the given arguments. -/

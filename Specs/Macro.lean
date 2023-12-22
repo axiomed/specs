@@ -12,7 +12,7 @@ namespace Specs.Macro
 def executeTest (term : Specs.Core.Specs) : Lean.Elab.TermElabM Unit :=
   let result := Specs.Runner.executePure default term
   let string := Specs.Display.displayMultiple result
-  if Array.any result (·.failed) then
+  if Array.any result (·.testTree.failed) then
     throwError string
   else
     Lean.logInfo string

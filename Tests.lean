@@ -18,7 +18,7 @@ def main := runCli do
       isEqual 1 1
       isGreater 3 1
     it "numbers greater than 10" do
-      isGreater 20 15
+      isGreater 20 10
     failing "numbers less than 0" do
       isGreater (-1) 0
     failing "random tests that should fail" do

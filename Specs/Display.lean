@@ -1,3 +1,6 @@
+import Specs.Config
+import Specs.Pretty
+
 /-! Data structure for representing the execution of a test suite. -/
 
 namespace Specs.Display
@@ -7,15 +10,23 @@ inductive TestTree where
   | test (succeded: Bool) (message: String) (explanation: Option String)
   deriving Inhabited
 
-partial def TestTree.reprTree (ident: String) : TestTree → String
+structure ConfigurableTestTree where
+  testTree : TestTree
+  config : Config
+  deriving Inhabited
+
+partial def ConfigurableTestTree.reprTree (ident: String) (configurableTestTree : ConfigurableTestTree) : String :=
+  match configurableTestTree.testTree with
   | TestTree.test succeded message explanation =>
-    let mark := if succeded then "🗸" else "🗙"
+      let mark := if succeded
+        then prettifier "[PASS]" (Colorized.color Color.Green) configurableTestTree.config
+        else prettifier "[FAIL]" (Colorized.color Color.Red) configurableTestTree.config
     let explanation := match explanation with
       | some explanation => if succeded then "" else s!"\n{ident}  {explanation}"
       | _                => ""
     s!"{ident}{mark} {message}{explanation}\n"
   | TestTree.group name tests =>
-    let tests := tests.map (TestTree.reprTree (ident ++ "  "))
+    let tests := tests.map (λ x => ConfigurableTestTree.reprTree (ident ++ "  ") (ConfigurableTestTree.mk x configurableTestTree.config))
     s!"{ident}{name}\n{String.join $ Array.toList tests}"
 
 partial def TestTree.countFailures : TestTree → Nat
@@ -26,10 +37,10 @@ partial def TestTree.failed : TestTree → Bool
   | TestTree.test succeded _ _ => !succeded
   | TestTree.group _ tests     => tests.any TestTree.failed
 
-instance : ToString TestTree where
+instance : ToString ConfigurableTestTree where
   toString tree := tree.reprTree ""
 
-def displayMultiple (tree: Array TestTree) : String := tree
+def displayMultiple (tree: Array ConfigurableTestTree) : String := tree
   |> Array.toList
   |> List.map ToString.toString
   |> String.join
