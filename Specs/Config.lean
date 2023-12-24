@@ -6,6 +6,11 @@ structure Config where
   verbose  : Bool := false
   bail     : Bool := false
   noColors : Bool := true
-  deriving Inhabited
+
+instance : Inhabited Config := ⟨{
+  verbose  := false
+  bail     := false
+  noColors := true
+}⟩
 
 end Specs
