@@ -56,7 +56,6 @@ def executeIO (config: Config) (specs: Specs) : IO UInt32 := do
   IO.println "\nRunning tests...\n"
   let tests := specs.run
 
-  let mut result := 0
   let mut arr := Array.empty
 
   for tree in tests do
@@ -65,6 +64,8 @@ def executeIO (config: Config) (specs: Specs) : IO UInt32 := do
     if res.testTree.failed && config.bail then break
 
   IO.println s!"{Specs.Display.displayMultiple arr}"
+
+  let result := arr.foldl (λ acc test => acc + test.testTree.countFailures) 0
 
   if result == 0 then
     IO.println "All tests passed!\n"
