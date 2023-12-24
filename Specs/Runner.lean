@@ -56,7 +56,6 @@ def executeIO (config: Config) (specs: Specs) : IO UInt32 := do
   IO.println "\nRunning tests...\n"
   let tests := specs.run
 
-  -- let mut result := 0
   let mut arr := Array.empty
 
   for tree in tests do
