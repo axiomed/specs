@@ -19,4 +19,6 @@ def executeTest (term : Specs.Core.Specs) : Lean.Elab.TermElabM Unit :=
 
 macro "#test " term:term : command => `(#eval Specs.Macro.executeTest $term)
 
+macro "suite" name:ident ":=" term:term : command => `(def $name : Specs.Core.Specs := $term)
+
 end Specs.Macro

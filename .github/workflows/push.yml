@@ -39,4 +39,4 @@ jobs:
         run: curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y
       - name: Run tests
         run: |
-          ~/.elan/bin/lake exe specstest
+          ~/.elan/bin/lake exe specs_test
