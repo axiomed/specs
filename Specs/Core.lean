@@ -1,10 +1,6 @@
-import Cats.Trans
-
 /-!
 Core definitions for the Specs test framework
 -/
-
-open Cats.Trans
 
 namespace Specs.Core
 
@@ -45,22 +41,22 @@ structure Env where
 def Env.push (env: Env) (label: String) : Env :=
   { env with labels := label :: env.labels }
 
-def SpecsM (α: Type) (r: Type) : Type := WriterT (Array (Tree α)) (ReaderT Env Id) r
+def SpecsM (α: Type) (r: Type) : Type := StateT (Array (Tree α)) (ReaderT Env Id) r
 
 def Specs : Type := SpecsM Test Unit
 
 def Specs.run (x: Specs) : Array (Tree Test) :=
-  let ⟨res, ()⟩ := x #[] { labels := [] }
-  res
+  let ⟨(), t⟩ := x #[] { labels := [] }
+  t
 
 instance : Monad (SpecsM α) where
-  pure x := λ p => pure ⟨p, x⟩
+  pure x := λ p => pure ⟨x, p⟩
   bind x f := λ p => do
     let ⟨p, x⟩ ← x p
-    f x p
+    f p x
 
 instance : MonadReader Env (SpecsM α) where
-  read := λ p x => pure ⟨p, x⟩
+  read := λ p x => pure ⟨x, p⟩
 
 def SpecsM.withEnv (f: Env -> Env) (x: SpecsM α β) : SpecsM α β :=
   λ p n => x p (f n)
@@ -70,8 +66,8 @@ def SpecsM.withLabel (name: String) (x: SpecsM α β) : SpecsM α β :=
 
 def SpecsM.mapTree (f: Array (Tree α) -> Array (Tree α)) (x: SpecsM α β) : SpecsM α β :=
   λ p n => do
-    let ⟨p', x⟩ ← x #[] n
-    pure ⟨Array.append p (f p'), x⟩
+    let ⟨x, p'⟩ ← x #[] n
+    pure ⟨x, Array.append p (f p')⟩
 
 def specGroup (name: String) (parallel: Bool) (leaves: Array (Tree α)) : Tree α :=
   match name with

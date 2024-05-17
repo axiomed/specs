@@ -1,13 +1,12 @@
 import Lean
-
 import Specs.Runner
 import Specs.Config
 import Specs.Core
 import Specs.Display
 
-/-! Module for macros for execution of tests -/
-
 namespace Specs.Macro
+
+/-! Module for macros for execution of tests -/
 
 def executeTest (term : Specs.Core.Specs) : Lean.Elab.TermElabM Unit :=
   let result := Specs.Runner.executePure default term

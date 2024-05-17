@@ -3,13 +3,12 @@ import Specs.Runner
 import Specs.Matchers
 import Cli
 
+namespace Specs
+open Specs.Core Specs.Runner Cli
+
 /-!
 Module for interacting with the command line.
 -/
-
-open Specs.Core Specs.Runner Cats.Trans Cli
-
-namespace Specs
 
 private def runCmd (specs: Specs) (parsed : Parsed) : IO UInt32 := do
   -- TODO: turn this into a config file

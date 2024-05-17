@@ -9,19 +9,24 @@ suite differentNumbers := do
   it "numbers greater than 0 but less than 10" do
     isEqual 1 1
     isGreater 3 1
+
   it "numbers greater than 10" do
     isGreater 20 15
+
   failing "numbers less than 0" do
     isGreater (-1) 0
+
   failing "random tests that should fail" do
     isEqual 1 2
     assert "this should fail" false true
     assert "this should fail" true false
     isGreater 1 2
     isLess 2 1
+
   describe "specific numbers" do
     it "1 and 1" do
       isEqual 1 1
+
     failing "1 and 2" do
       isEqual 1 2
 

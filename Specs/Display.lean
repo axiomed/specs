@@ -1,9 +1,9 @@
 import Specs.Config
 import Specs.Pretty
 
-/-! Data structure for representing the execution of a test suite. -/
-
 namespace Specs.Display
+
+/-! Data structure for representing the execution of a test suite. -/
 
 inductive TestTree where
   | group (name: String) (tests: Array TestTree)

@@ -1,17 +1,15 @@
 import Specs.Core
 import Specs.Config
 import Specs.Display
-
 import Lean
+
+namespace Specs.Runner
+open Specs Specs.Core Specs.Display
 
 /-!
 Module for running `Specs` tests. This module is responsible for executing the tests and printing
 the results.
 -/
-
-open Specs Specs.Core Specs.Display
-
-namespace Specs.Runner
 
 private def executeTest (config : Config) (item: Item Test) : ConfigurableTestTree :=
   let result := ExceptT.run item.action

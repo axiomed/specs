@@ -1,15 +1,13 @@
 import Specs.Core
 import Specs.Testable
 
+namespace Specs.Matchers
+open Specs.Core
+
 /-!
 Specs.lean uses `matchers` to test and describe values in different ways. This module defines
 a bunch of then
 -/
-
-open Specs.Core
-open Cats.Trans
-
-namespace Specs.Matchers
 
 /-- `describe` creates a block that groups a bunch of tests that are related. -/
 def describe (label: String) (x: SpecsM α β) (parallel: Bool := false) : SpecsM α β :=
@@ -24,11 +22,11 @@ def prop (label: String) (ρ: Prop) [d: Testable ρ] : Test :=
 /-- `it` defines a single test with a label -/
 def it (label: String) (action: α) : SpecsM α Unit :=
   let item : Item α := { requirement := label, action, shouldFail := false }
-  WriterT.tell #[Tree.leaf item]
+  StateT.modifyGet $ λx => ((),  x.push (Tree.leaf item))
 
 def failing (label: String) (action: α) : SpecsM α Unit :=
   let item : Item α := { requirement := label, action, shouldFail := true }
-  WriterT.tell #[Tree.leaf item]
+  StateT.modifyGet $ λx => ((),  x.push (Tree.leaf item))
 
 /-- `assert` checks that two values are equal. -/
 def assert [Repr α] [BEq α] (message: String) (actual: α) (expected: α) : Test := do

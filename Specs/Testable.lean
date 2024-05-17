@@ -1,3 +1,5 @@
+namespace Specs
+
 /-! Defines a `Testable` Type class that is used to things that we can test through decidable equality -/
 
 class inductive Testable (α : Prop) where

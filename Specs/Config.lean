@@ -1,6 +1,6 @@
-/-! Module for `Runner` configuration -/
-
 namespace Specs
+
+/-! Module for `Runner` configuration -/
 
 structure Config where
   verbose  : Bool := false
