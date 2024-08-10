@@ -1,4 +1,4 @@
-# Http.lean
+# Specs.lean
 
 [![CI](https://github.com/axiomed/Specs.lean/actions/workflows/push.yml/badge.svg)](https://github.com/axiomed/Specs.lean/actions/workflows/push.yml)
 
@@ -15,7 +15,7 @@ If you think Lean 4 can shine not only as a theorem prover, but as a general pur
 
 ## Usage
 
-Add Http to your `lakefile.lean`:
+Add Specs to your `lakefile.lean`:
 
 ```lean
 require Specs from git "https://github.com/axiomed/Specs.lean.git"
